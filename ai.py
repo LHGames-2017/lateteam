@@ -7,8 +7,6 @@ from astar import *
 
 app = Flask(__name__)
 
-path = []
-
 dest = None
 
 dropoff = False
@@ -210,7 +208,7 @@ def bot():
 	print("Player position: " + str(player.Position))	
 	#print(map_json)
 
-	if(dropoff == False):
+	if(dropoff == player.CarriedRessources < player.CarryingCapacity):
 		dest = get_closest_resource(player, deserialized_map)
 	else:
 		dest = get_house_location(player, deserialized_map)
@@ -230,13 +228,8 @@ def bot():
 		else:
 			return create_move_action(Point(x,y+1))
 
-	if(dropoff == False):
-		while(player.CarriedRessources < player.CarryingCapacity):	
-			return create_collect_action(get_collectable_point(player,deserialized_map))
-	dropoff = True
-
-	if(player.CarriedRessources == 0):
-		dropoff = False
+	while(player.CarriedRessources < player.CarryingCapacity):	
+		return create_collect_action(get_collectable_point(player,deserialized_map))
 
 @app.route("/", methods=["POST"])
 def reponse():
