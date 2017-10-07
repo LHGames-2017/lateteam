@@ -52,6 +52,8 @@ def bot():
     """
     Main de votre bot.
     """
+    # salut PO
+
     map_json = request.form["map"]
 
     # Player info
