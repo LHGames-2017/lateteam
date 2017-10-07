@@ -9,8 +9,6 @@ app = Flask(__name__)
 
 dest = None
 
-dropoff = False
-
 def create_action(action_type, target):
 	actionContent = ActionContent(action_type, target.__dict__)
 	return json.dumps(actionContent.__dict__)
@@ -58,40 +56,7 @@ def deserialize_map(serialized_map):
 
 #**************************************************************NOTRE CODE******************************************************************************************
 
-
-def validMove(gameMap, nextMove):	#informe si la tile sur laquelle on veut se deplacer est vide
-	return (gameMap[nextMove.X][nextMove.Y].Content == TileContent.Empty)
-
-def move(player, gameMap, point): #fct qui fait bouger le personnage si la tile est empty
-	if(validMove(gameMap, point)):
-		return create_move_action(point)
-
-def findActionTile(player, gameMap):  #signale si le personnage est sur une case voisine d'une tile sur laquelle on peut faire une aciton (pressource, shop, player)
-	position = player.Position
-	if((gameMap[position.X + 1][position.Y].Content  == TileContent.Resource) or (gameMap[position.X + 1][position.Y].Content  == TileContent.Player) or (gameMap[position.X + 1][position.Y].Content  == TileContent.Shop)):
-		return Point(position.X + 1, position.Y);
-	if((gameMap[position.X - 1][position.Y].Content  == TileContent.Resource) or (gameMap[position.X - 1][position.Y].Content  == TileContent.Player) or (gameMap[position.X - 1][position.Y].Content  == TileContent.Shop)):
-		return Point(position.X - 1, position.Y);
-	if((gameMap[position.X][position.Y + 1].Content  == TileContent.Resource) or (gameMap[position.X][position.Y + 1].Content  == TileContent.Player) or (gameMap[position.X][position.Y + 1].Content  == TileContent.Shop)):
-		return Point(position.X, position.Y + 1);
-	if((gameMap[position.X][position.Y - 1].Content == TileContent.Resource) or (gameMap[position.X][position.Y - 1].Content == TileContent.Player) or (gameMap[position.X][position.Y - 1].Content == TileContent.Shop)):
-		return Point(position.X, position.Y - 1);
-
-	return None
-
 def goToActionTile(player, gameMap):
-	#while(findActionTile(player, map) == None): #tant qu'on est pas a cote d'une ressource
-	#	action = randint(1,4);
-	#	if(action == 1):
-	#		return move(player, map, Point(player.Position.X+1, player.Position.Y))#se deplacer a gauche
-	#	if(action == 2):
-	#		return move(player, map, Point(player.Position.X-1, player.Position.Y))#a droite
-	#	if(action == 3):
-	#		return move(player, map, Point(player.Position.X, player.Position.Y+1))# en haut
-	#	if(action == 4):
-	#		return move(player, map, Point(player.Position.X, player.Position.Y-1))#en bas
-	
-
 	action = randint(1,4);
 	if(action == 1):
 		return move(player, gameMap, Point(player.Position.X+1, player.Position.Y))#se deplacer a gauche
@@ -124,19 +89,6 @@ def get_collectable_point(player, gameMap):
 		return Point(player.Position.X,player.Position.Y-1)
 	return None
 
-def MAIN_FUNCTION(player, gameMap): #fct de deplacement du AI pour miner des ressources	
-	if(findActionTile(player, gameMap) == None):
-		#return goToActionTile(player, gameMap) #on se rend a une action tile
-		return create_move_action(get_random_point(player))
-	else:
-		return create_collect_action(findActionTile(player, gameMap))
-		
-	# le personnage va faire une action tant que son sac n'est pas vide
-	#while(player.CarriedRessources <= (player.CarryingCapacity - 100)): #100 est la valeur de combien on peut ramasser de mineraux par action
-	#	create_move_action(findActionTile(player, map))
-
-	#fct de retour a la maison..
-
 def get_closest_resource(player, gamemap):
 	p = None
 	for i in range(20):
@@ -165,9 +117,7 @@ def get_house_location(player, gamemap):
 				elif(newP.Distance(Point(10,10),newP) < p.Distance(Point(10,10),p)):
 					p = newP
 
-	return Point(player.Position.X + p.X-10, player.Position.Y + p.Y-10)
-	
- 
+	return Point(player.Position.X + p.X-10, player.Position.Y + p.Y-10) 
 
 def bot():
 	"""
@@ -186,7 +136,7 @@ def bot():
 	y = pos["Y"]
 	house = p["HouseLocation"]
 	player = Player(p["Health"], p["MaxHealth"], Point(x,y),
-					Point(house["X"], house["Y"]),
+					Point(house["X"], house["Y"]), p["Score"],
 					p["CarriedResources"], p["CarryingCapacity"])
 
 	# Map
@@ -208,13 +158,13 @@ def bot():
 	print("Player position: " + str(player.Position))	
 	#print(map_json)
 
-	if(dropoff == player.CarriedRessources < player.CarryingCapacity):
+	if(player.CarriedRessources < player.CarryingCapacity):
 		dest = get_closest_resource(player, deserialized_map)
 	else:
 		dest = get_house_location(player, deserialized_map)
 
 	print("Target " + str(dest))
-	print("Resources: " + str(player.CarriedRessources))
+	print("Resources: " + str(player.CarriedRessources) + " (max " + str(player.CarryingCapacity) + ")")
 
 	while(x != dest.X):
 		if(x > dest.X):
