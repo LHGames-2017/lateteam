@@ -49,17 +49,22 @@ def deserialize_map(serialized_map):
 
     return deserialized_map
 
-#def validMove(map, point):
-
+def validMove(map, nextMove):
+    return (map[nextMove.X][nextMove.Y].content == TileContent.Empty)
 
 def findResourceTile(player, map):
     position = player.Position
-    if(map[position.X + 1][position.Y].content  == TileContent.Resource 
-       or map[position.X - 1][position.Y].content  == TileContent.Resource
-       or map[position.X][position.Y + 1].content  == TileContent.Resource
-       or map[position.X][position.Y - 1].content == TileContent.Resource):
+    if(map[position.X + 1][position.Y].content  == TileContent.Resource):
+        return Point(position.X + 1, position.Y);
+    if(map[position.X - 1][position.Y].content  == TileContent.Resource):
+        return Point(position.X - 1, position.Y);
 
-        
+    if(map[position.X][position.Y + 1].content  == TileContent.Resource):
+        return Point(position.X, position.Y + 1);
+    if(map[position.X][position.Y - 1].content == TileContent.Resource):
+        return Point(position.X, position.Y - 1);
+
+    return None
 
 
 def bot():
