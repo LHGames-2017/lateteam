@@ -22,13 +22,13 @@ class Node(object):
         if(y < 39):
             self.neighbors.append(Node(Point(x, y + 1)))
         return list
-
+   
 
 def astar(start, end, map):
-    openSet = [start]
-    closedSet = []
+    openSet = set(start)
+    closedSet = set()
     while (openSet):
-        best = 0
+        best = 0   #index of node with the best f
         for x in range [0, len(openSet)]:       
             #trouve le chemin le plus court dans openSet
             if(openSet[x].f < openSet[best].f):
@@ -37,13 +37,16 @@ def astar(start, end, map):
         #si le meilleur de openSet est le noeud final, on a fini
         if(current == end):              
             #retrace le chemin
-            path = [current]
+            """
+            path = []
             while(current.previous != None):
                 path.append(current.previous)
                 current = current.previous
             return path
+            """
+            return current.previous
         openSet.remove(current)
-        closedSet.append(current)
+        closedSet.add(current)
         current.addNeighbors()
         for n in neighbors:
             #deja traité si dans closedSet
@@ -52,13 +55,15 @@ def astar(start, end, map):
                if (n in openSet):
                    if(temp < n.g):
                        n.g = temp
+                       n.f = n.g + n.h
                else:
                    #heuristic = distance entre le point et la fin
                    n.h = n.point.Distance(end, n)
                    n.g = temp
-                   openSet.append(n)
+                   n.f = n.g + n.h
+                   openSet.add(n)
                n.previous = current
-               n.f = n.g + n.h
+              
             
 
 
