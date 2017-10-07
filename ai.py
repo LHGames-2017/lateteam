@@ -79,14 +79,14 @@ def get_random_point(player):
 		return Point(player.Position.X, player.Position.Y-1)
 
 def get_collectable_point(player, gameMap):	
-	if(gameMap[player.Position.X+1][player.Position.Y].Content == TileContent.Resource):
-		return Point(player.Position.X+1,player.Position.Y)
-	if(gameMap[player.Position.X-1][player.Position.Y].Content == TileContent.Resource):
+	if(gameMap[9][10].Content == TileContent.Resource):
 		return Point(player.Position.X-1,player.Position.Y)
-	if(gameMap[player.Position.X][player.Position.Y+1].Content == TileContent.Resource):
-		return Point(player.Position.X,player.Position.Y+1)
-	if(gameMap[player.Position.X][player.Position.Y-1].Content == TileContent.Resource):
+	if(gameMap[11][10].Content == TileContent.Resource):
+		return Point(player.Position.X+1,player.Position.Y)
+	if(gameMap[10][9].Content == TileContent.Resource):
 		return Point(player.Position.X,player.Position.Y-1)
+	if(gameMap[10][11].Content == TileContent.Resource):
+		return Point(player.Position.X,player.Position.Y+1)
 	return None
 
 def get_closest_resource(player, gamemap):
@@ -118,6 +118,36 @@ def get_house_location(player, gamemap):
 					p = newP
 
 	return Point(player.Position.X + p.X-10, player.Position.Y + p.Y-10) 
+
+def get_smart_move(player, dest, gamemap):
+	#deltaX = dest.X - player.Position.X
+	#deltaY = dest.Y - player.Position.Y
+
+	if(player.Position.X > dest.X):
+		content = gamemap[9,10].Content 	
+		if(content != TileContent.Wall and content != TileContent.Lava and content != TileContent.Player):
+			return create_move_action(Point(player.Position.X-1,player.Position.Y))
+		else:
+			return create_move_action(Point(player.Position.X,player.Position.Y-1))	
+	else:
+		content = gamemap[11,10].Content 	
+		if(content != TileContent.Wall and content != TileContent.Lava and content != TileContent.Player):
+			return create_move_action(Point(player.Position.X+1,player.Position.Y))
+		else:
+			return create_move_action(Point(player.Position.X,player.Position.Y+1))
+
+	if(player.Position.Y > dest.Y):
+		content = gamemap[10,9].Content 	
+		if(content != TileContent.Wall and content != TileContent.Lava and content != TileContent.Player):
+			return create_move_action(Point(player.Position.X,player.Position.Y-1))
+		else:
+			return create_move_action(Point(player.Position.X-1,player.Position.Y))
+	else:
+		content = gamemap[10,11].Content 	
+		if(content != TileContent.Wall and content != TileContent.Lava and content != TileContent.Player):
+			return create_move_action(Point(player.Position.X,player.Position.Y+1))
+		else:
+			return create_move_action(Point(player.Position.X+1,player.Position.Y))
 
 def bot():
 	"""
@@ -166,20 +196,25 @@ def bot():
 	print("Target " + str(dest))
 	print("Resources: " + str(player.CarriedRessources) + " (max " + str(player.CarryingCapacity) + ")")
 
-	while(x != dest.X):
+	if(dest.Distance(dest,player.Position) == 1):
+		while(player.CarriedRessources < player.CarryingCapacity):	
+			return create_collect_action(dest)
+	
+	while(x > dest.X or x < dest.X):
 		if(x > dest.X):
 			return create_move_action(Point(x-1,y))
 		else:
 			return create_move_action(Point(x+1,y))
 
-	while(y != dest.Y-1 or y != dest.Y+1):
+	while(y > dest.Y or y < dest.Y):
 		if(y > dest.Y):
 			return create_move_action(Point(x,y-1))
 		else:
 			return create_move_action(Point(x,y+1))
+	
+	#while(player.CarriedRessources < player.CarryingCapacity):	
+	#	return create_collect_action(dest)
 
-	while(player.CarriedRessources < player.CarryingCapacity):	
-		return create_collect_action(get_collectable_point(player,deserialized_map))
 
 @app.route("/", methods=["POST"])
 def reponse():
