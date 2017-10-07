@@ -49,22 +49,55 @@ def deserialize_map(serialized_map):
 
     return deserialized_map
 
-def validMove(map, nextMove):
+
+
+#**************************************************************NOTRE CODE******************************************************************************************
+
+
+def validMove(map, nextMove):   #informe si la tile sur laquelle on veut se déplacer est vide
     return (map[nextMove.X][nextMove.Y].content == TileContent.Empty)
 
-def findResourceTile(player, map):
-    position = player.Position
-    if(map[position.X + 1][position.Y].content  == TileContent.Resource):
-        return Point(position.X + 1, position.Y);
-    if(map[position.X - 1][position.Y].content  == TileContent.Resource):
-        return Point(position.X - 1, position.Y);
+def move(player, map, point): #fct qui fait bouger le personnage si la tile est empty
+    if(validMove(map, point)):
+        player.Position = point
 
-    if(map[position.X][position.Y + 1].content  == TileContent.Resource):
+def findActionTile(player, map):  #signale si le personnage est sur une case voisine d'une tile sur laquelle on peut faire une aciton (pressource, shop, player)
+    position = player.Position
+    if((map[position.X + 1][position.Y].content  == TileContent.Resource) or (map[position.X + 1][position.Y].content  == TileContent.Player) or (map[position.X + 1][position.Y].content  == TileContent.Shop)):
+        return Point(position.X + 1, position.Y);
+    if((map[position.X - 1][position.Y].content  == TileContent.Resource) or (map[position.X - 1][position.Y].content  == TileContent.Player) or (map[position.X - 1][position.Y].content  == TileContent.Shop)):
+        return Point(position.X - 1, position.Y);
+    if((map[position.X][position.Y + 1].content  == TileContent.Resource) or (map[position.X][position.Y + 1].content  == TileContent.Player) or (map[position.X][position.Y + 1].content  == TileContent.Shop)):
         return Point(position.X, position.Y + 1);
-    if(map[position.X][position.Y - 1].content == TileContent.Resource):
+    if((map[position.X][position.Y - 1].content == TileContent.Resource) or (map[position.X][position.Y - 1].content == TileContent.Player) or (map[position.X][position.Y - 1].content == TileContent.Shop)):
         return Point(position.X, position.Y - 1);
 
     return None
+
+def goToActionTile(player, map):
+    while(findActionTile(player, map) == None): #tant qu'on est pas à coté d'une ressource
+        action = randint(1,4);
+        if(action == 1):
+            move(player, map, Point(player.Position.X+1, player.Position.Y))#se déplacer à gauche
+        if(action == 2):
+            move(player, map, Point(player.Position.X-1, player.Position.Y))#a droite
+        if(action == 3):
+            move(player, map, Point(player.Position.X, player.Position.Y+1))# en haut
+        if(action == 4):
+            move(player, map, Point(player.Position.X, player.Position.Y-1))#en bas
+
+
+
+def MAIN_FUNCTION(player, map): #fct de deplacement du AI pour miner des ressources
+    
+    goToActionTile(player, map) #on se rend à une action tile
+
+    # le personnage va faire une action tant que son sac n'est pas vide
+    while(player.CarriedRessources <= (player.CarryingCapacity - 100)): #100 est la valeur de combien on peut ramasser de minéraux par action
+        create_move_action(findActionTile(player, map))
+
+    #fct de retour à la maison..
+
 
 
 def bot():
