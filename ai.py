@@ -3,8 +3,13 @@ from structs import *
 import json
 import numpy
 from random import *
+from astar import *
 
 app = Flask(__name__)
+
+dest = None
+
+dropoff = False
 
 def create_action(action_type, target):
 	actionContent = ActionContent(action_type, target.__dict__)
@@ -132,7 +137,37 @@ def MAIN_FUNCTION(player, gameMap): #fct de deplacement du AI pour miner des res
 
 	#fct de retour a la maison..
 
+def get_closest_resource(player, gamemap):
+	p = None
+	for i in range(20):
+		for j in range(20): 
+			content = gamemap[i][j].Content  
+			#print("content(" + str(i) + "," + str(j) + ") = " + str(content))
+			if(content == TileContent.Resource):
+				newP = Point(i,j)
+				if(p == None):
+					p = newP
+				elif(newP.Distance(Point(10,10),newP) < p.Distance(Point(10,10),p)):
+					p = newP
 
+	return Point(player.Position.X + p.X-10, player.Position.Y + p.Y-10)
+
+def get_house_location(player, gamemap):
+	p = None
+	for i in range(20):
+		for j in range(20): 
+			content = gamemap[i][j].Content  
+			#print("content(" + str(i) + "," + str(j) + ") = " + str(content))
+			if(content == TileContent.House):
+				newP = Point(i,j)
+				if(p == None):
+					p = newP
+				elif(newP.Distance(Point(10,10),newP) < p.Distance(Point(10,10),p)):
+					p = newP
+
+	return Point(player.Position.X + p.X-10, player.Position.Y + p.Y-10)
+	
+ 
 
 def bot():
 	"""
@@ -170,15 +205,31 @@ def bot():
 
 			otherPlayers.append({player_name: player_info })
 	
-	print("Player position: " + str(x) + "," + str(y))	
+	print("Player position: " + str(player.Position))	
+	#print(map_json)
 
-	p = get_collectable_point(player,deserialized_map)  
-	if(p != None):
-		print("Resource located at " + str(p.X) + "," + str(p.Y))
-		return create_collect_action(p)
+	if(dropoff == player.CarriedRessources < player.CarryingCapacity):
+		dest = get_closest_resource(player, deserialized_map)
 	else:
-		return create_move_action(get_random_point(player))
-	
+		dest = get_house_location(player, deserialized_map)
+
+	print("Target " + str(dest))
+	print("Resources: " + str(player.CarriedRessources))
+
+	while(x != dest.X):
+		if(x > dest.X):
+			return create_move_action(Point(x-1,y))
+		else:
+			return create_move_action(Point(x+1,y))
+
+	while(y != dest.Y-1 or y != dest.Y+1):
+		if(y > dest.Y):
+			return create_move_action(Point(x,y-1))
+		else:
+			return create_move_action(Point(x,y+1))
+
+	while(player.CarriedRessources < player.CarryingCapacity):	
+		return create_collect_action(get_collectable_point(player,deserialized_map))
 
 @app.route("/", methods=["POST"])
 def reponse():
