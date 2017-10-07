@@ -102,7 +102,9 @@ def bot():
                                      Point(p_pos["X"], p_pos["Y"]))
 
             otherPlayers.append({player_name: player_info })
-
+	
+	print("Player position: " + str(x) + "," + str(y))	
+	
     # return decision
     return create_move_action(Point(0,1))
 
