@@ -1,4 +1,5 @@
 import math
+import random
 
 class ActionTypes():
     DefaultAction, MoveAction, AttackAction, CollectAction, UpgradeAction, StealAction, PurchaseAction = range(7)
@@ -48,6 +49,9 @@ class GameInfo(object):
         self.Map = None
         self.Players = dict()
 
+    def setMap(self, map):
+        self.Map = map
+
 
 class Tile(object):
 
@@ -81,4 +85,7 @@ class ActionContent(object):
 
     def __init__(self, action_name, content):
         self.ActionName = action_name
-        self.Content = {}
+        self.Content = str(content)
+
+
+
