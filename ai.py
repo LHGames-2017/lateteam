@@ -1,7 +1,7 @@
 from flask import Flask, request
 from structs import *
 import json
-import numpy
+import numpy as np
 
 app = Flask(__name__)
 
@@ -83,8 +83,15 @@ def bot():
 
             otherPlayers.append({player_name: player_info })
 
+    if firstRun:
+      qTable =  np.rand(40)
+
+    
     # return decision
     return create_move_action(Point(0,1))
+
+def initialize():
+
 
 @app.route("/", methods=["POST"])
 def reponse():
