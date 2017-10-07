@@ -37,14 +37,13 @@ def astar(start, end, map):
         #si le meilleur de openSet est le noeud final, on a fini
         if(current == end):              
             #retrace le chemin
-            """
             path = []
             while(current.previous != None):
                 path.append(current.previous)
-                current = current.previous
-            return path
-            """
-            return current.previous
+                current = current.previous  
+            return path[::-1]   #liste des movements dans l'ordre à partir de la position actuelle (exculisevement) jusqu'à la position finale.
+            #return path.pop()  #retourne que le premiere mouvement à faire du path jusqu'à end
+            
         openSet.remove(current)
         closedSet.add(current)
         current.addNeighbors()
