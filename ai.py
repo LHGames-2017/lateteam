@@ -2,6 +2,7 @@ from flask import Flask, request
 from structs import *
 import json
 import numpy
+from random import *
 
 app = Flask(__name__)
 
@@ -48,11 +49,23 @@ def deserialize_map(serialized_map):
 
     return deserialized_map
 
+#def validMove(map, point):
+
+
+def findResourceTile(player, map):
+    position = player.Position
+    if(map[position.X + 1][position.Y].content  == TileContent.Resource 
+       or map[position.X - 1][position.Y].content  == TileContent.Resource
+       or map[position.X][position.Y + 1].content  == TileContent.Resource
+       or map[position.X][position.Y - 1].content == TileContent.Resource):
+
+        
+
+
 def bot():
     """
     Main de votre bot.
     """
-    # salut PO
 
     map_json = request.form["map"]
 
